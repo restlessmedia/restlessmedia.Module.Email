@@ -1,0 +1,9 @@
+src/bin
+src/obj
+src/bin
+src/obj
+.DS_Store
+.vs
+packages/**/*
+restlessmedia.Module.Email.UnitTest/bin
+restlessmedia.Module.Email.UnitTest/obj
