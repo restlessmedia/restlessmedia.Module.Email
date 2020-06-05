@@ -86,6 +86,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="AdminEmail.cs" />
     <Compile Include="Configuration\EmailCollection.cs" />
     <Compile Include="Configuration\EmailSettings.cs" />
     <Compile Include="Data\IEmailQueueDataProvider.cs" />
