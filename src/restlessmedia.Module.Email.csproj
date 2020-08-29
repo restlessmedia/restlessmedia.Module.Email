@@ -5,12 +5,12 @@
     <Product>restlessmedia.Module.Email</Product>
     <Description>Module email library.</Description>
     <Copyright>Copyright restlessmedia 2020</Copyright>
-    <Version>2.1.0</Version>
-    <AssemblyVersion>2.1.0</AssemblyVersion>
-    <FileVersion>2.1.0</FileVersion>
+    <Version>2.1.1</Version>
+    <AssemblyVersion>2.1.10</AssemblyVersion>
+    <FileVersion>2.1.1</FileVersion>
     <OutputPath>bin\$(Configuration)\</OutputPath>
     <Authors>Phil Cooper</Authors>
-    <PackageId>$title$</PackageId>
+    <PackageId>restlessmedia.Module.Email</PackageId>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugType>full</DebugType>
