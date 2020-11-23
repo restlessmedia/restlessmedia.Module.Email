@@ -2,7 +2,9 @@
 using restlessmedia.Module.Email.Data;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Net.Mail;
+using System.Threading.Tasks;
 
 namespace restlessmedia.Module.Email
 {
@@ -47,12 +49,12 @@ namespace restlessmedia.Module.Email
 
     public void Send(string from, string[] to, string subject = null, string body = null, bool isHtml = false)
     {
-      Send(new Email(from, to, subject, body.ToString(), isHtml));
+      Send(new Email(from, to, subject, body, isHtml));
     }
 
     public void Send(string from, string to, string subject = null, string body = null, bool isHtml = false)
     {
-      Send(new Email(from, to, subject, body.ToString(), isHtml));
+      Send(new Email(from, to, subject, body, isHtml));
     }
 
     public void SendDefault(string[] to, string subject = null, string body = null, bool isHtml = false)
@@ -75,57 +77,60 @@ namespace restlessmedia.Module.Email
       SendDefault(email.EmailAddress, subject: subject, body: body);
     }
 
-    public void Send(params IEmail[] emails)
+    public void Send(IEmail email)
     {
-      foreach (MailMessage mailMessage in CreateMailMessages(emails))
+      using (SmtpClient client = new SmtpClient())
       {
-        // smtp client uses web config for connection information
-        using (SmtpClient client = new SmtpClient())
+        client.Send(CreateMailMessage(email));
+      }
+    }
+
+    public void SendAll(IEnumerable<IEmail> emails)
+    {
+      // smtp client uses web config for connection information
+      using (SmtpClient client = new SmtpClient())
+      {
+        foreach (MailMessage mailMessage in CreateMailMessages(emails))
         {
           client.Send(mailMessage);
         }
       }
     }
 
-    public void SendAsync(params IEmail[] emails)
+    public Task SendAsync(IEmail email)
     {
-      foreach (MailMessage mailMessage in CreateMailMessages(emails))
+      using (SmtpClient client = new SmtpClient())
       {
-        using (SmtpClient client = new SmtpClient())
-        {
-          client.SendAsync(mailMessage, null);
-        }
+        return client.SendMailAsync(CreateMailMessage(email));
       }
     }
 
-    public void SendAsync(string from, string[] to, string subject = null, string body = null, bool isHtml = false)
+    public IEnumerable<Task> SendAllAsync(IEnumerable<IEmail> emails)
     {
-      SendAsync(new Email(from, to, subject, body.ToString(), isHtml));
-    }
-
-    public void SendAsync(string from, string to, string subject = null, string body = null, bool isHtml = false)
-    {
-      SendAsync(new Email(from, to, subject, body.ToString(), isHtml));
-    }
-
-    public void SendDefaultAsync(string[] to, string subject = null, string body = null, bool isHtml = false)
-    {
-      SendAsync(_emailSettings.FromEmail, to, subject, body, isHtml);
-    }
-
-    public void SendDefaultAsync(string to, string subject = null, string body = null, bool isHtml = false)
-    {
-      SendAsync(_emailSettings.FromEmail, to, subject, body, isHtml);
-    }
-
-    private void Queue(IEmail email)
-    {
-      if (email == null)
+      using (SmtpClient client = new SmtpClient())
       {
-        throw new ArgumentNullException(nameof(email));
+        return CreateMailMessages(emails).Select(client.SendMailAsync).ToArray();
       }
+    }
 
-      _emailQueueDataProvider.Queue(email);
+    public Task SendAsync(string from, string[] to, string subject = null, string body = null, bool isHtml = false)
+    {
+      return SendAsync(new Email(from, to, subject, body.ToString(), isHtml));
+    }
+
+    public Task SendAsync(string from, string to, string subject = null, string body = null, bool isHtml = false)
+    {
+      return SendAsync(new Email(from, to, subject, body.ToString(), isHtml));
+    }
+
+    public Task SendDefaultAsync(string[] to, string subject = null, string body = null, bool isHtml = false)
+    {
+      return SendAsync(_emailSettings.FromEmail, to, subject, body, isHtml);
+    }
+
+    public Task SendDefaultAsync(string to, string subject = null, string body = null, bool isHtml = false)
+    {
+      return SendAsync(_emailSettings.FromEmail, to, subject, body, isHtml);
     }
 
     private void QueueItemError(QueueEmail item, Exception exception)
@@ -153,37 +158,40 @@ namespace restlessmedia.Module.Email
       _emailQueueDataProvider.QueueItemProcessed(item.QueueId, DateTime.Now);
     }
 
-    private static IEnumerable<MailMessage> CreateMailMessages(params IEmail[] emails)
+    private static MailMessage CreateMailMessage(IEmail email)
     {
-      foreach (IEmail email in emails)
+      using (MailMessage mailMessage = new MailMessage
       {
-        using (MailMessage mailMessage = new MailMessage())
+        From = new MailAddress(email.From),
+        Subject = email.Subject,
+        IsBodyHtml = email.IsHtml,
+        Body = email.Body,
+      })
+      {
+        foreach (string to in email.To)
         {
-          foreach (string to in email.To)
-          {
-            mailMessage.To.Add(to);
-          }
-
-          mailMessage.From = new MailAddress(email.From);
-          mailMessage.Subject = email.Subject;
-          mailMessage.IsBodyHtml = email.IsHtml;
-          mailMessage.Body = email.Body;
-
-          if (email.Attachments != null)
-          {
-            foreach (IAttachment attachment in email.Attachments)
-            {
-              Attachment mailAttachment = new Attachment(attachment.ContentStream, attachment.Name, attachment.Type)
-              {
-                ContentId = attachment.Name
-              };
-              mailMessage.Attachments.Add(mailAttachment);
-            }
-          }
-
-          yield return mailMessage;
+          mailMessage.To.Add(to);
         }
+
+        if (email.Attachments != null)
+        {
+          foreach (IAttachment attachment in email.Attachments)
+          {
+            Attachment mailAttachment = new Attachment(attachment.ContentStream, attachment.Name, attachment.Type)
+            {
+              ContentId = attachment.Name
+            };
+            mailMessage.Attachments.Add(mailAttachment);
+          }
+        }
+
+        return mailMessage;
       }
+    }
+
+    private static IEnumerable<MailMessage> CreateMailMessages(IEnumerable<IEmail> emails)
+    {
+      return emails.Select(CreateMailMessage);
     }
 
     private readonly IEmailQueueDataProvider _emailQueueDataProvider;

@@ -16,7 +16,7 @@ namespace restlessmedia.Module.Email
 
       if (to == null || to.Length == 0)
       {
-        throw new ArgumentException("to");
+        throw new ArgumentException(nameof(to));
       }
 
       From = from;

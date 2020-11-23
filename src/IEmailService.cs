@@ -1,4 +1,7 @@
-﻿namespace restlessmedia.Module.Email
+﻿using System.Collections.Generic;
+using System.Threading.Tasks;
+
+namespace restlessmedia.Module.Email
 {
   public interface IEmailService : IService
   {
@@ -31,16 +34,16 @@
 
     void Send(IEmailAddress email, string subject = null, string body = null);
 
-    void Send(params IEmail[] emails);
+    void SendAll(IEnumerable<IEmail> emails);
 
-    void SendAsync(string from, string[] to, string subject = null, string body = null, bool isHtml = false);
+    Task SendAsync(string from, string[] to, string subject = null, string body = null, bool isHtml = false);
 
-    void SendAsync(string from, string to, string subject = null, string body = null, bool isHtml = false);
+    Task SendAsync(string from, string to, string subject = null, string body = null, bool isHtml = false);
 
-    void SendDefaultAsync(string[] to, string subject = null, string body = null, bool isHtml = false);
+    Task SendDefaultAsync(string[] to, string subject = null, string body = null, bool isHtml = false);
 
-    void SendDefaultAsync(string to, string subject = null, string body = null, bool isHtml = false);
+    Task SendDefaultAsync(string to, string subject = null, string body = null, bool isHtml = false);
 
-    void SendAsync(params IEmail[] emails);
+    IEnumerable<Task> SendAllAsync(IEnumerable<IEmail> emails);
   }
 }
