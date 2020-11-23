@@ -36,6 +36,8 @@ namespace restlessmedia.Module.Email
 
     void SendAll(IEnumerable<IEmail> emails);
 
+    Task SendAsync(IEmail email);
+
     Task SendAsync(string from, string[] to, string subject = null, string body = null, bool isHtml = false);
 
     Task SendAsync(string from, string to, string subject = null, string body = null, bool isHtml = false);
