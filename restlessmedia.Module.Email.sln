@@ -1,9 +1,9 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 15
-VisualStudioVersion = 15.0.28307.489
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.30621.155
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "restlessmedia.Module.Email", "src\restlessmedia.Module.Email.csproj", "{4008CD39-58D1-46FA-A7A6-CD64ED04A0B2}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "restlessmedia.Module.Email", "src\restlessmedia.Module.Email.csproj", "{4008CD39-58D1-46FA-A7A6-CD64ED04A0B2}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{C9A7044A-4623-4841-8AE0-870B4C37F8CA}"
 	ProjectSection(SolutionItems) = preProject
@@ -12,6 +12,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		nuget.config = nuget.config
 		README.md = README.md
 	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "restlessmedia.Module.Email.Tests", "restlessmedia.Module.Email.Tests\restlessmedia.Module.Email.Tests.csproj", "{490A8CEA-6101-4DA0-9E4E-A4C940AB060B}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -23,12 +25,16 @@ Global
 		{4008CD39-58D1-46FA-A7A6-CD64ED04A0B2}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{4008CD39-58D1-46FA-A7A6-CD64ED04A0B2}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{4008CD39-58D1-46FA-A7A6-CD64ED04A0B2}.Release|Any CPU.Build.0 = Release|Any CPU
+		{490A8CEA-6101-4DA0-9E4E-A4C940AB060B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{490A8CEA-6101-4DA0-9E4E-A4C940AB060B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{490A8CEA-6101-4DA0-9E4E-A4C940AB060B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{490A8CEA-6101-4DA0-9E4E-A4C940AB060B}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
-		EnterpriseLibraryConfigurationToolBinariesPathV6 = packages\EnterpriseLibrary.Common.6.0.1304.0\lib\NET45;packages\EnterpriseLibrary.TransientFaultHandling.6.0.1304.0\lib\portable-net45+win+wp8
 		SolutionGuid = {7EB260DF-07F4-4AF0-AAF7-A02F19C627BD}
+		EnterpriseLibraryConfigurationToolBinariesPathV6 = packages\EnterpriseLibrary.Common.6.0.1304.0\lib\NET45;packages\EnterpriseLibrary.TransientFaultHandling.6.0.1304.0\lib\portable-net45+win+wp8
 	EndGlobalSection
 EndGlobal

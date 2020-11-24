@@ -34,7 +34,7 @@ namespace restlessmedia.Module.Email
 
     void Send(IEmailAddress email, string subject = null, string body = null);
 
-    void SendAll(IEnumerable<IEmail> emails);
+    void SendAll(params IEmail[] emails);
 
     Task SendAsync(IEmail email);
 
@@ -46,6 +46,6 @@ namespace restlessmedia.Module.Email
 
     Task SendDefaultAsync(string to, string subject = null, string body = null, bool isHtml = false);
 
-    IEnumerable<Task> SendAllAsync(IEnumerable<IEmail> emails);
+    Task SendAllAsync(params IEmail[] emails);
   }
 }

@@ -10,7 +10,8 @@ namespace restlessmedia.Module.Email
     {
       containerBuilder.RegisterType<EmailService>().As<IEmailService>().SingleInstance();
       containerBuilder.RegisterType<EmailContext>().As<IEmailContext>().SingleInstance();
-      containerBuilder.RegisterType<EmailQueueDataProvider>().As<IEmailQueueDataProvider>().SingleInstance(); 
+      containerBuilder.RegisterType<EmailQueueDataProvider>().As<IEmailQueueDataProvider>().SingleInstance();
+      containerBuilder.RegisterType<SmtpClientFactory>().As<ISmtpClientFactory>().SingleInstance(); 
       containerBuilder.RegisterSettings<IEmailSettings>("restlessmedia/email", required: true);
     }
   }
