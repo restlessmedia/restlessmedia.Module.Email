@@ -23,6 +23,8 @@ namespace restlessmedia.Module.Email
     /// <param name="includeSent"></param>
     /// <returns></returns>
     ModelCollection<QueueEmail> Queue(int max = 10, int? maxTries = 3, bool includeSent = false);
+    
+    void Send(IEmail email);
 
     void Send(string from, string[] to, string subject = null, string body = null, bool isHtml = false);
 
