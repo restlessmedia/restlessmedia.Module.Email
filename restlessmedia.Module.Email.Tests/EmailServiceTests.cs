@@ -1,39 +1,89 @@
 ﻿using FakeItEasy;
 using restlessmedia.Module.Email.Configuration;
 using restlessmedia.Module.Email.Data;
+using restlessmedia.Test;
+using SendGrid;
+using SendGrid.Helpers.Mail;
 using System;
 using System.IO;
-using System.Net.Mail;
-using System.Reflection;
+using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using Xunit;
 
 namespace restlessmedia.Module.Email.Tests
 {
-  public class EmailServiceTests : IDisposable
+  public class EmailServiceTests
   {
     public EmailServiceTests()
     {
-      string binDirectory = Path.GetDirectoryName(Assembly.GetExecutingAssembly().GetName().CodeBase).Replace("file:\\", "");
-      
-      _testDirectory = Path.Combine(binDirectory, "temp");
-      _smtpClientFactory = A.Fake<ISmtpClientFactory>();
-      _emailService = new EmailService(A.Fake<IEmailQueueDataProvider>(), A.Fake<IEmailSettings>(), _smtpClientFactory);
-      
-      Directory.CreateDirectory(_testDirectory);
-
-      A.CallTo(() => _smtpClientFactory.Create()).Returns(new SmtpClient
-      {
-        DeliveryMethod = SmtpDeliveryMethod.SpecifiedPickupDirectory,
-        PickupDirectoryLocation = _testDirectory,
-      });
+      _client = A.Fake<ISendGridClient>();
+      _emailService = new EmailService(A.Fake<IEmailQueueDataProvider>(), A.Fake<IEmailSettings>(), _client);
     }
 
-    [Fact]
-    public async void SendAsync()
+    [Theory]
+    [InlineData("test-from@test.com", "test-subject", "test-to@test.com")]
+    public async void sends_with_simple_message_info(string from, string subject, string to)
+    {
+      // set-upnp
+      await _emailService.SendAsync(from, to, subject, "test-body");
+
+      A.CallTo(() => _client.SendEmailAsync(A<SendGridMessage>.Ignored, A<CancellationToken>.Ignored))
+        .WhenArgumentsMatch(args =>
+        {
+          var message = args.Get<SendGridMessage>(0);
+          return message.From.Email.Equals(from)
+          && message.Subject.Equals(subject)
+          && message.Personalizations.SelectMany(x => x.Tos).Any(x => x.Email == to);
+        })
+        .MustHaveHappened();
+    }
+
+    [Theory]
+    [InlineData("body", true)]
+    [InlineData("body", false)]
+    public async void sends_with_body(string body, bool isHtml)
+    {
+      // set-upnp
+      await _emailService.SendAsync("test-from@test.com", "test-to@test.com", "test-subject", body, isHtml);
+
+      A.CallTo(() => _client.SendEmailAsync(A<SendGridMessage>.Ignored, A<CancellationToken>.Ignored))
+        .WhenArgumentsMatch(args =>
+        {
+          var message = args.Get<SendGridMessage>(0);
+
+          if (isHtml)
+          {
+            return !string.IsNullOrEmpty(message.HtmlContent);
+          }
+
+          return !string.IsNullOrEmpty(message.PlainTextContent);
+        })
+        .MustHaveHappened();
+    }
+
+    [Fact(Skip = "Not sure how to test attachments yet - may be due to them being async")]
+    public async void sends_with_attachment()
     {
       // set-up
-      await _emailService.SendAsync("test-from@test.com", "test-to@test.com", "test-subject", "test-body");
+      IEmail email = A.Fake<IEmail>();
+      Stream stream = A.Fake<Stream>();
+      A.CallTo(() => email.Attachments)
+        .Returns(new IAttachment[]
+      {
+        new EmailAttachment("attach-name", "attach-type", stream)
+      });
+
+      await _emailService.SendAsync(email);
+
+      A.CallTo(() => _client.SendEmailAsync(A<SendGridMessage>.Ignored, A<CancellationToken>.Ignored))
+        .WhenArgumentsMatch(args =>
+        {
+          var message = args.Get<SendGridMessage>(0);
+          
+          return true;
+        })
+        .MustHaveHappened();
     }
 
     [Fact]
@@ -49,15 +99,8 @@ namespace restlessmedia.Module.Email.Tests
       await Task.WhenAll(_emailService.SendAllAsync(new[] { email, email }));
     }
 
-    public void Dispose()
-    {
-      Directory.Delete(_testDirectory, true);
-    }
-
-    private readonly ISmtpClientFactory _smtpClientFactory;
+    private readonly ISendGridClient _client;
 
     private readonly EmailService _emailService;
-
-    private readonly string _testDirectory;
   }
 }

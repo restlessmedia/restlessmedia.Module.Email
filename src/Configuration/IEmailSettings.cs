@@ -12,5 +12,10 @@
     string AdminEmail { get; }
 
     IEmailAddress GetAddress(string name);
+
+    /// <summary>
+    /// Api key for the email send client.
+    /// </summary>
+    string ApiKey { get; }
   }
 }

@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+﻿using System;
 using System.Threading.Tasks;
 
 namespace restlessmedia.Module.Email
@@ -8,6 +8,7 @@ namespace restlessmedia.Module.Email
     /// <summary>
     /// Process unsent or failed emails
     /// </summary>
+    [Obsolete("Queue is deprecated")]
     void ProcessQueue();
 
     /// <summary>
@@ -23,19 +24,26 @@ namespace restlessmedia.Module.Email
     /// <param name="includeSent"></param>
     /// <returns></returns>
     ModelCollection<QueueEmail> Queue(int max = 10, int? maxTries = 3, bool includeSent = false);
-    
+
+    [Obsolete("Use async methods")]
     void Send(IEmail email);
 
+    [Obsolete("Use async methods")]
     void Send(string from, string[] to, string subject = null, string body = null, bool isHtml = false);
 
+    [Obsolete("Use async methods")]
     void Send(string from, string to, string subject = null, string body = null, bool isHtml = false);
 
+    [Obsolete("Use async methods")]
     void SendDefault(string[] to, string subject = null, string body = null, bool isHtml = false);
 
+    [Obsolete("Use async methods")]
     void SendDefault(string to, string subject = null, string body = null, bool isHtml = false);
 
+    [Obsolete("Use async methods")]
     void Send(IEmailAddress email, string subject = null, string body = null);
 
+    [Obsolete("Use async methods")]
     void SendAll(params IEmail[] emails);
 
     Task SendAsync(IEmail email);
