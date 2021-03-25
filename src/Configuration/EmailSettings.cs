@@ -17,6 +17,15 @@ namespace restlessmedia.Module.Email.Configuration
       }
     }
 
+    [ConfigurationProperty(_apiKeyProperty, IsRequired = false)]
+    public string ApiKey
+    {
+      get
+      {
+        return (string)this[_apiKeyProperty];
+      }
+    }
+
     /// <summary>
     /// The email address of the mail setting set to be the default 'from' address
     /// </summary>
@@ -72,10 +81,10 @@ namespace restlessmedia.Module.Email.Configuration
 
     private const string _addItemName = "add";
 
-    private const string _adminEmailProperty = "adminEmail";
-
     private const string _emailsProperty = "addresses";
 
     private const string _fromProperty = "from";
+
+    private const string _apiKeyProperty = "apiKey"; 
   }
 }

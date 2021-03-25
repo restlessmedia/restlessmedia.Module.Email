@@ -4,10 +4,10 @@
     <AssemblyTitle>restlessmedia.Module.Email</AssemblyTitle>
     <Product>restlessmedia.Module.Email</Product>
     <Description>Module email library.</Description>
-    <Copyright>Copyright restlessmedia 2020</Copyright>
-    <Version>3.0.0</Version>
-    <AssemblyVersion>3.0.0</AssemblyVersion>
-    <FileVersion>3.0.0</FileVersion>
+    <Copyright>Copyright restlessmedia 2021</Copyright>
+    <Version>3.1.0</Version>
+    <AssemblyVersion>3.1.0</AssemblyVersion>
+    <FileVersion>3.1.0</FileVersion>
     <OutputPath>bin\$(Configuration)\</OutputPath>
     <Authors>Phil Cooper</Authors>
     <PackageId>restlessmedia.Module.Email</PackageId>
@@ -30,6 +30,7 @@
     <PackageReference Include="restlessmedia.Module" Version="8.0.0" />
     <PackageReference Include="restlessmedia.Module.Address" Version="4.0.0" />
     <PackageReference Include="restlessmedia.Module.Data.EF" Version="2.2.1" />
+    <PackageReference Include="SendGrid" Version="9.22.0" />
     <PackageReference Include="SqlBuilder" Version="2.0.1" />
     <PackageReference Include="SqlBuilder.DataServices" Version="2.0.0" />
     <PackageReference Include="StackExchange.Redis" Version="2.2.4" />

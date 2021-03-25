@@ -1,8 +1,9 @@
 ﻿using restlessmedia.Module.Email.Configuration;
 using restlessmedia.Module.Email.Data;
+using SendGrid;
+using SendGrid.Helpers.Mail;
 using System;
 using System.Linq;
-using System.Net.Mail;
 using System.Threading.Tasks;
 
 namespace restlessmedia.Module.Email
@@ -12,13 +13,14 @@ namespace restlessmedia.Module.Email
   /// </summary>
   public sealed class EmailService : IEmailService
   {
-    public EmailService(IEmailQueueDataProvider emailQueueDataProvider, IEmailSettings emailSettings, ISmtpClientFactory smtpClientFactory)
+    public EmailService(IEmailQueueDataProvider emailQueueDataProvider, IEmailSettings emailSettings, ISendGridClient client)
     {
       _emailQueueDataProvider = emailQueueDataProvider ?? throw new ArgumentNullException(nameof(emailQueueDataProvider));
       _emailSettings = emailSettings ?? throw new ArgumentNullException(nameof(emailSettings));
-      _smtpClientFactory = smtpClientFactory ?? throw new ArgumentNullException(nameof(smtpClientFactory));
+      _client = client ?? throw new ArgumentNullException(nameof(client));
     }
 
+    [Obsolete("Queue is deprecated")]
     public void ProcessQueue()
     {
       foreach (QueueEmail item in Queue())
@@ -67,6 +69,7 @@ namespace restlessmedia.Module.Email
       Send(_emailSettings.FromEmail, to, subject, body, isHtml);
     }
 
+    [Obsolete("Use async methods")]
     public void Send(IEmailAddress email, string subject = null, string body = null)
     {
       if (email == null)
@@ -77,17 +80,13 @@ namespace restlessmedia.Module.Email
       SendDefault(email.EmailAddress, subject: subject, body: body);
     }
 
+    [Obsolete("Use async methods")]
     public void Send(IEmail email)
     {
-      using (MailMessage mailMessage = CreateMailMessage(email))
-      {
-        using (SmtpClient client = _smtpClientFactory.Create())
-        {
-          client.Send(mailMessage);
-        }
-      }
+      SendAsync(email).GetAwaiter().GetResult();
     }
 
+    [Obsolete("Use async methods")]
     public void SendAll(params IEmail[] emails)
     {
       foreach (IEmail email in emails)
@@ -98,18 +97,13 @@ namespace restlessmedia.Module.Email
 
     public async Task SendAsync(IEmail email)
     {
-      using (MailMessage mailMessage = CreateMailMessage(email))
-      {
-        using (SmtpClient client = _smtpClientFactory.Create())
-        {
-          await client.SendMailAsync(mailMessage);
-        }
-      }
+      SendGridMessage mailMessage = CreateMailMessage(email);
+      await _client.SendEmailAsync(mailMessage);
     }
 
     public async Task SendAllAsync(params IEmail[] emails)
     {
-      await Task.WhenAll(emails.Select(SendAsync).ToArray());
+      await Task.WhenAll(emails.Select(SendAsync));
     }
 
     public Task SendAsync(string from, string[] to, string subject = null, string body = null, bool isHtml = false)
@@ -157,37 +151,40 @@ namespace restlessmedia.Module.Email
       _emailQueueDataProvider.QueueItemProcessed(item.QueueId, DateTime.Now);
     }
 
-    private static MailMessage CreateMailMessage(IEmail email)
+    private static SendGridMessage CreateMailMessage(IEmail email)
     {
-      MailMessage mailMessage = new MailMessage
+      SendGridMessage mailMessage = new SendGridMessage
       {
-        From = new MailAddress(email.From),
+        From = new EmailAddress(email.From),
         Subject = email.Subject,
-        IsBodyHtml = email.IsHtml,
-        Body = email.Body,
       };
+
+      if (email.IsHtml)
+      {
+        mailMessage.HtmlContent = email.Body;
+      }
+      else
+      {
+        mailMessage.PlainTextContent = email.Body;
+      }
 
       foreach (string to in email.To)
       {
-        mailMessage.To.Add(to);
+        mailMessage.AddTo(to);
       }
 
       if (email.Attachments != null)
       {
-        foreach (IAttachment attachment in email.Attachments)
+        foreach (IAttachment attachment in email.Attachments.Where(x => x.ContentStream != null))
         {
-          Attachment mailAttachment = new Attachment(attachment.ContentStream, attachment.Name, attachment.Type)
-          {
-            ContentId = attachment.Name
-          };
-          mailMessage.Attachments.Add(mailAttachment);
+          mailMessage.AddAttachmentAsync(attachment.Name, attachment.ContentStream, attachment.Type);
         }
       }
 
       return mailMessage;
     }
 
-    private readonly ISmtpClientFactory _smtpClientFactory;
+    private readonly ISendGridClient _client;
 
     private readonly IEmailQueueDataProvider _emailQueueDataProvider;
 

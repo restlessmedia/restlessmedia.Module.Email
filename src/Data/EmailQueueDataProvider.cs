@@ -1,5 +1,4 @@
 ﻿using restlessmedia.Module.Data;
-using restlessmedia.Module.Email.Configuration;
 
 namespace restlessmedia.Module.Email.Data
 {
