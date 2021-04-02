@@ -99,6 +99,23 @@ namespace restlessmedia.Module.Email.Tests
       await Task.WhenAll(_emailService.SendAllAsync(new[] { email, email }));
     }
 
+    [Fact]
+    public void Send_sync()
+    {
+      const string errorMessage = "send failed";
+      IEmail email = A.Fake<IEmail>();
+      A.CallTo(() => email.To).Returns(new[] { "test-to@test.com" });
+      A.CallTo(() => email.From).Returns("test-from@test.com");
+      A.CallTo(() => email.Subject).Returns("test-subject");
+      A.CallTo(() => email.Body).Returns("test-body");
+
+      A.CallTo(() => _client.SendEmailAsync(A<SendGridMessage>.Ignored, A<CancellationToken>.Ignored))
+        .Throws(call => new Exception(errorMessage));
+
+      // set-up
+      _emailService.Send(email);
+    }
+
     private readonly ISendGridClient _client;
 
     private readonly EmailService _emailService;

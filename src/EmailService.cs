@@ -3,6 +3,7 @@ using restlessmedia.Module.Email.Data;
 using SendGrid;
 using SendGrid.Helpers.Mail;
 using System;
+using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -83,7 +84,7 @@ namespace restlessmedia.Module.Email
     [Obsolete("Use async methods")]
     public void Send(IEmail email)
     {
-      SendAsync(email).GetAwaiter().GetResult();
+      SendAsync(email).ConfigureAwait(false);
     }
 
     [Obsolete("Use async methods")]
